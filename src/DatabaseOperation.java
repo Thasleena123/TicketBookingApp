@@ -17,6 +17,7 @@ public class DatabaseOperation {
         return conn;
     }
 
+
     public int executeUpdate(String sql, Object[] values) {
         int rowAffected = 0;
         try (Connection conn = connectToDatabase();
@@ -33,8 +34,9 @@ public class DatabaseOperation {
 
     public ResultSet getRecords(String sql) {
         ResultSet rs = null;
-        try (Connection conn = connectToDatabase();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try {
+            Connection conn = connectToDatabase();
+            PreparedStatement ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
         } catch (SQLException e) {
@@ -42,6 +44,19 @@ public class DatabaseOperation {
         }
         return rs;
     }
+    public int getAvailableSeats(String sql, int showtimeID) {
+        int availableSeats = 0;
+        try (Connection conn = connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, showtimeID);
+            ResultSet rs = ps.executeQuery();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return availableSeats;
+    }
 
 }
+
 
