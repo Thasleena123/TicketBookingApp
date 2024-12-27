@@ -12,7 +12,7 @@ public class DatabaseOperation {
         try {
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("database connection failed "+e.getMessage());
         }
         return conn;
     }
@@ -44,6 +44,47 @@ public class DatabaseOperation {
         }
         return rs;
     }
+//    public ResultSet getRecords(String sql, Object... params) {
+//        ResultSet rs = null;
+//        try (Connection conn = connectToDatabase();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//            for (int i = 0; i < params.length; i++) {
+//                ps.setObject(i + 1, params[i]);  // Set each parameter in the prepared statement
+//            }
+//            rs = ps.executeQuery();
+//            return rs;
+//
+//        } catch (SQLException e) {
+//            System.out.println("Error getting records: " + e.getMessage());
+//        }
+//        return null;
+//    }
+
+    public ResultSet getRecords(String sql, Object... params) {
+        ResultSet rs = null;
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = connectToDatabase();
+            ps = conn.prepareStatement(sql);
+
+
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+
+            rs = ps.executeQuery();
+
+        } catch (SQLException e) {
+            System.out.println("Error getting records: " + e.getMessage());
+        }
+
+
+        return rs;
+    }
+
     public int getAvailableSeats(String sql, int showtimeID) {
         int availableSeats = 0;
         try (Connection conn = connectToDatabase();

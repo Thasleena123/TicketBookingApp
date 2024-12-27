@@ -9,17 +9,17 @@ public class Movi {
     private int duration;
     private float rating;
 
-    public Movi(String title, String genre, int duration, float rating) {
-        this.title = title;
-        this.genre = genre;
-        this.duration = duration;
-        this.db = db;
-        this.rating = rating;
-    }
+//    public Movi(String title, String genre, int duration, float rating) {
+//        this.title = title;
+//        this.genre = genre;
+//        this.duration = duration;
+//        this.db = db;
+//        this.rating = rating;
+//    }
 
     DatabaseOperation db = new DatabaseOperation();
 
-    public void insertMovi() {
+    public void insertMovi(String title, String genre, int duration, float rating) {
         String sql = "insert into movies(title,genre,duration,rating)Values(?,?,?,?)";
         Object[] values = {title, genre, duration, rating};
         int rowsAffected = db.executeUpdate(sql, values);
