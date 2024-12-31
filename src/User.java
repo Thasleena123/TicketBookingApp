@@ -1,35 +1,67 @@
 package src;
 
-public class User {
-//    public User(String name, String email, String phoneno, String password) {
-//        this.name = name;
-//        this.email = email;
-//        this.phoneno = phoneno;
-//        Password = password;
-//    }
+import src.Booking;
+import src.Showtime;
 
-    String name;
-    String email;
-    String phoneno;
-    String Password;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Scanner;
 
-    void login(){
+    public class User {
+        String name;
+        String username;
+        String password;
+        String address;
+        String phone;
+        int choice;
+        Scanner sc = new Scanner(System.in);
+        Showtime st = new Showtime();
+        Booking b = new Booking();
 
+
+
+        public void userMenu(int userID){
+            while(true){
+
+                System.out.println("---------- User Menu ----------");
+                System.out.println("Press 1 to see all showtimes.");
+                System.out.println("Press 2 to book a ticket");
+                System.out.println("Press 3 to see ticket bookings");
+                System.out.println("Press 4 to cancel ticket booking");
+                System.out.println("Press 5 to exit.");
+                System.out.print("Enter your choice:");
+                choice = sc.nextInt();
+                switch(choice){
+                    //to see all movies
+                    case 1:
+                        st.showShowtimes();
+                        break;
+
+                    //book a ticket
+                    case 2:
+                        b.bookTicket(userID);
+                        break;
+
+                    //see ticket bookings
+                    case 3:
+                        b.seeTicket(userID);
+                        break;
+
+                    //cancel ticket booking
+                    case 4:
+                        b.cancelTicket(userID);
+                        break;
+
+                    //exit
+                    case 5:
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Wrong choice entered!Retry");
+                        break;
+                }
+            }
+        }
     }
-    void viewMovies(){
-
-    }
-
-    void buyTickets(){
-
-    }
-    void CancelTickets(){
-
-    }
-    void viewBooking(){
-
-    }
-
-
-
-}

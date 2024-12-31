@@ -41,7 +41,18 @@ public class Admin extends User {
         return sc.nextInt();
     }
 
-    public void adminMenu() {
+
+        public void adminMenu(int userID) {
+            // Check if the user is an admin
+            if (!db.isAdmin(userID)) {
+                System.out.println("You are not authorized to access the admin menu.");
+                return; // Exit the method if not an admin
+            }
+
+
+
+
+
         while (true) {
 
             System.out.println("-----ADMIN MENU-------");
@@ -96,7 +107,7 @@ public class Admin extends User {
                     total_seats = sc.nextInt();
                     System.out.println("enter the available number of seats");
                     available_seats = sc.nextInt();
-                    st.insertShowtime(movieid, theater_id, screen_id, showtime, total_seats, available_seats);
+                    st.insertShowtime(movieid, theater_id, screen_id, showtime,  available_seats);
                     break;
                 case 4:
                     //see all shows
@@ -148,13 +159,13 @@ public class Admin extends User {
                     screen_id = sc.nextInt();
                     se.showSeatsInScreen(screen_id);
                     break;
-                case 11:
-                    // Book a ticket
-                    System.out.println("Enter User ID:");
-                    int userID = sc.nextInt();
-                    Booking booking = new Booking();
-                    booking.bookTicket(userID);
-                    break;
+//                case 11:
+//                    // Book a ticket
+//                    System.out.println("Enter User ID:");
+//                    int userID = sc.nextInt();
+//                    Booking booking = new Booking();
+//                    booking.bookTicket(userID);
+//                    break;
 
 
                 case 14:

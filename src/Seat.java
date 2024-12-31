@@ -21,7 +21,7 @@ public class Seat {
     }
 
     public void showSeatsInScreen(int screenId) {
-        String sql = "SELECT * FROM seats WHERE screen_id = ?";
+        String sql = "SELECT * FROM seats WHERE screen_id = ? ";
         ResultSet rs = db.getRecords(sql, screenId);
         try {
             while (rs.next()) {
@@ -37,6 +37,27 @@ public class Seat {
             try {
                 if (rs != null) {
                     rs.close();  // Close the ResultSet
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void availableSeatsInShowtime(int showtimeID) {
+        String sql = "SELECT * FROM seats WHERE showtime_id = ? AND isBooked = false";
+        ResultSet rs = db.getRecords(sql, showtimeID);
+        try {
+            while (rs.next()) {
+                String level = rs.getString("level");
+                int seatNumber = rs.getInt("seat_number");
+                System.out.println("Level: " + level + ", Seat Number: " + seatNumber);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

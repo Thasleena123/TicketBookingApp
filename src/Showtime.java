@@ -6,9 +6,9 @@ import java.sql.Timestamp;
 
 public class Showtime {
     DatabaseOperation db=new DatabaseOperation();
-    public void insertShowtime(int moviId, int teaterId, int screenId, Timestamp showTime,int totalSeats,int availableSeats){
-        String sql="insert into showtimes(moviId,teaterId,screenId,showTime,totalSeats,availableSeats)values(?,?,?,?,?,?,?)";
-        Object[] values={moviId,teaterId,screenId,showTime,totalSeats,availableSeats};
+    public void insertShowtime(int MOVIID, int THEATERID, int SCREENID, Timestamp showtime,int AVAILABLE_SEATS){
+        String sql="insert into showtime(MOVIID,THEATERID,SCREENID,showtime,TOTAL_SEATS,AVAILABLE_SEATS)values(?,?,?,?,?,?)";
+        Object[] values={MOVIID,THEATERID,SCREENID,showtime,AVAILABLE_SEATS};
         int rowsAffected = db.executeUpdate(sql, values);
         if(rowsAffected>0)
             System.out.println("Showtime added successfully");
@@ -21,12 +21,13 @@ public class Showtime {
         ResultSet rs = db.getRecords(sql);
         try {
             while (rs.next()) {
-                System.out.println("showtime id:" + rs.getInt("showtimeID"));
-                System.out.println("movi id:" + rs.getInt("moviID"));
-                System.out.println("theater Id :" + rs.getString("theaterId"));
-                System.out.println("showtime: " + rs.getTimestamp("showTime"));
-                System.out.println("total seats:" + rs.getInt("totalSeats"));
-                System.out.println("availableSeats:" + rs.getInt("availableSeats"));
+                System.out.println("showtime id:" + rs.getInt("SHOWID"));
+                System.out.println("movi id:" + rs.getInt("MOVIID"));
+                System.out.println("Scrren id:"+ rs.getInt("screenId"));
+                System.out.println("theater Id :" + rs.getString("THEATERID"));
+                System.out.println("showtime: " + rs.getTimestamp("showtime"));
+
+                System.out.println("availableSeats:" + rs.getInt("AVAILABLE_SEATS"));
 
             }
         } catch (Exception e) {
