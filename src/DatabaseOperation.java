@@ -3,7 +3,7 @@ package src;
 import java.sql.*;
 
 public class DatabaseOperation {
-    static final String DB_URL = "jdbc:mysql://localhost:3306/movi_booking";
+    static final String DB_URL = "jdbc:mysql://localhost:3306/movie_booking";
     static final String USER = "root";
     static final String PASS = "password";
 
@@ -11,6 +11,7 @@ public class DatabaseOperation {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
         } catch (SQLException e) {
             System.out.println("Database connection failed: " + e.getMessage());
         }
@@ -50,7 +51,30 @@ public class DatabaseOperation {
         }
         return rs; // Return the ResultSet
     }
+    public int getMovieIdByName(String movieName) {
+        String sql = "SELECT moviID FROM movies WHERE title = ?";
+        ResultSet rs = null;
+        try (Connection conn = connectToDatabase(); // Assuming connectToDatabase() is defined
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, movieName);
+            rs = ps.executeQuery();
 
+            if (rs.next()) {
+                return rs.getInt("moviID");
+            } else {
+                return -1; // Movie not found
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return -1; // Movie not found
+    }
 
     public boolean isAdmin(int userID) {
         String sql = "SELECT isadmin FROM user WHERE userid = ?";

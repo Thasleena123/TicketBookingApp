@@ -1,10 +1,12 @@
 package src;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class Movi {
+public class Movie {
     private String title;
     private String genre;
     private int duration;
@@ -13,7 +15,7 @@ public class Movi {
 
     DatabaseOperation db = new DatabaseOperation();
 
-    public void insertMovi(String title, String genre, int duration, float rating) {
+    public void insertMovie(String title, String genre, int duration, float rating) {
         String sql = "insert into movies(title,genre,duration,rating)Values(?,?,?,?)";
         Object[] values = {title, genre, duration, rating};
         int rowsAffected = db.executeUpdate(sql, values);
@@ -23,75 +25,84 @@ public class Movi {
             System.out.println("something went wrong.movi not inserted");
         }
     }
-
     public void showMovies() {
-        String sql = "SELECT * FROM movies";
-        ResultSet rs = db.getRecords(sql);
+        String sql = "SELECT MOVIID, title FROM movies";  // Query to fetch only movie ID and title
+        ResultSet rs = null;
 
-        System.out.println("Available Movies:");
+        try (Connection conn = db.connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            rs = ps.executeQuery();
 
-        try {
-            if (!rs.isBeforeFirst()) { // Check if there are any results
-                System.out.println("No movies found.");
-                return;
-            }
+            System.out.println("+------------------------------+");
+            System.out.println("| 🎬 Movie List 📽️           |");
+            System.out.println("+------------------------------+");
+            System.out.println("| 🎥 Movie ID  | 🍿 Movie Name       |");
+            System.out.println("+------------------------------+");
 
-            // Print table header
-            System.out.println("+--------+----------------------+----------+----------+--------+");
-            System.out.printf("| %-6s | %-20s | %-8s | %-8s | %-6s |\n",
-                    "ID", "Title", "Genre", "Duration", "Rating");
-            System.out.println("+--------+----------------------+----------+----------+--------+");
-
-            // Print table rows
             while (rs.next()) {
                 int movieId = rs.getInt("moviID");
-                String title = rs.getString("title");
-                String genre = rs.getString("genre");
-                int duration = rs.getInt("duration");
-                float rating = rs.getFloat("rating");
-
-                System.out.printf("| %-6d | %-20s | %-8s | %-8d | %-6.1f |\n",
-                        movieId, title, genre, duration, rating);
+                String movieName = rs.getString("title");
+                System.out.printf("| %-10d | %-16s |\n", movieId, movieName);
             }
 
-            // Print table footer
-            System.out.println("+--------+----------------------+----------+----------+--------+");
-        } catch (Exception e) {
+            System.out.println("+------------------------------+");
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close(); // Close the ResultSet
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    public void showMovieDetails(String movieName) {
+        // Get the movie ID from the movie name
+        DatabaseOperation db = new DatabaseOperation();
+        int movieId = db.getMovieIdByName(movieName);
 
-//    public void showMovies() {
-//        String sql = "select* from movies";
-//        ResultSet rs = db.getRecords(sql);
-//        try {
-//            while (rs.next()) {
-//                System.out.println("movi id:" + rs.getInt("moviID"));
-//                System.out.println("title :" + rs.getString("title"));
-//                System.out.println("genre :" + rs.getString("genre"));
-//                System.out.println("duration:" + rs.getInt("duration"));
-//                System.out.println("rating:" + rs.getFloat("rating"));
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (rs != null) rs.close();
-//
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
-//}
+        // If movie is found, display its details
+        if (movieId != -1) {
+            String sql = "SELECT * FROM movies WHERE moviID = ?";
+            ResultSet rs = null;
+            try (Connection conn = db.connectToDatabase();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, movieId);
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    System.out.println("+----------------------------+");
+                    System.out.println("| 🎬 Movie Details 🎥       |");
+                    System.out.println("+----------------------------+");
+                    System.out.println("| 🎥 Movie ID:    " + rs.getInt("moviID"));
+                    System.out.println("| 🍿 Title:       " + rs.getString("title"));
+                    System.out.println("| 🎭 Genre:       " + rs.getString("genre"));
+                    System.out.println("| ⏳ Duration:    " + rs.getInt("duration") + " minutes");
+                    System.out.println("| ⭐ Rating:      " + rs.getFloat("rating"));
+//                    System.out.println("| 🎬 Director:    " + rs.getString("director"));
+//                    System.out.println("| 👥 Cast:        " + rs.getString("cast"));
+//                    System.out.println("| 📜 Description: " + rs.getString("description"));
+//                    System.out.println("+----------------------------+");
+
+                    System.out.println("Please choose the booking option to grab the tickets... 🎟️");
+
+                } else {
+                    System.out.println("Movie not found!");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            System.out.println("Could not find the movie with name: " + movieName);
+        }
+    }
 
     private void showAvailableShowtimes(int movieId) {
         String sql = "SELECT SHOWID, MOVIID, THEATERID, showtime, AVAILABLE_SEATS " +

@@ -1,5 +1,7 @@
 package src;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -18,31 +20,7 @@ public class Seat {
         System.out.println("Seats added successfully for level " + level + " and showtime ID " + showtimeId + "!");
     }
 
-//
-//
-//    public void showSeatsInScreen(int screenId) {
-//        String sql = "SELECT * FROM seats WHERE screen_id = ? ";
-//        ResultSet rs = db.getRecords(sql, screenId);
-//        try {
-//            while (rs.next()) {
-//                String level = rs.getString("level");
-//                int seatNumber = rs.getInt("seat_number");
-//                boolean isBooked = rs.getBoolean("isBooked");
-//                System.out.println("Level: " + level + ", Seat Number: " + seatNumber + ", Booked: " + isBooked);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//
-//            try {
-//                if (rs != null) {
-//                    rs.close();  // Close the ResultSet
-//                }
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+
     public void showSeatsInScreen(int screenId) {
         String sql = "SELECT * FROM seats WHERE screen_id = ?";
         ResultSet rs = db.getRecords(sql, screenId);
@@ -81,37 +59,24 @@ public class Seat {
             }
         }
     }
+    //--------------------------------------------------------------------------------------------------------
+  public  boolean isSeatAvailable(int seatID) {
+        String sql = "SELECT isBooked FROM seats WHERE seat_id = ?";
+        try (Connection conn = db.connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seatID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return !rs.getBoolean("isBooked"); // Return true if not booked
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Error checking seat availability: " + e.getMessage());
+        }
+        return false; // Default to unavailable if query fails
+    }
 
 
-    //public void availableSeatsInShowtime(int showtimeID) {
-//    String sql = "SELECT * FROM seats WHERE showtime_id = ? AND isBooked = false";
-//    ResultSet rs = db.getRecords(sql, showtimeID);
-//    System.out.println("Available Seats for Showtime ID: " + showtimeID);
-//    try {
-//        boolean foundSeats = false;
-//        while (rs.next()) {
-//            int seatID = rs.getInt("seat_id");
-//            String level = rs.getString("level");
-//            int seatNumber = rs.getInt("seat_number");
-//            System.out.println("Seat ID: " + seatID + ", Level: " + level + ", Seat Number: " + seatNumber);
-//            foundSeats = true;
-//        }
-//        if (!foundSeats) {
-//            System.out.println("No available seats for this showtime.");
-//        }
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//    } finally {
-//        try {
-//            if (rs != null) {
-//                rs.close();
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//}
-//
+//------------------------------------------------------------------------------------------------------------
     public void availableSeatsInShowtime(int showtimeID) {
         String sql = "SELECT * FROM seats WHERE showtime_id = ? AND isBooked = false";
         ResultSet rs = db.getRecords(sql, showtimeID);
@@ -149,46 +114,9 @@ public class Seat {
                 e.printStackTrace();
             }
         }
-//}
-//    public void showSeatsInScreen(int screenId) {
-//        String sql = "SELECT * FROM seats WHERE screen_id = ?";
-//        ResultSet rs = db.getRecords(sql, screenId);
-//
-//        System.out.println("Seats in Screen ID: " + screenId);
-//
-//        try {
-//            if (!rs.isBeforeFirst()) { // Check if there are any results
-//                System.out.println("No seats found for this screen.");
-//                return;
-//            }
-//
-//            // Print table header
-//            System.out.println("+---------+--------------+---------+");
-//            System.out.printf("| %-7s | %-12s | %-7s |\n", "Level", "Seat Number", "Booked");
-//            System.out.println("+---------+--------------+---------+");
-//
-//            // Print table rows
-//            while (rs.next()) {
-//                String level = rs.getString("level");
-//                int seatNumber = rs.getInt("seat_number");
-//                boolean isBooked = rs.getBoolean("isBooked");
-//
-//                System.out.printf("| %-7s | %-12d | %-7s |\n", level, seatNumber, isBooked ? "Yes" : "No");
-//            }
-////
-////            // Print table footer
-//            System.out.println("+---------+--------------+---------+");
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (rs != null) rs.close(); // Close the ResultSet
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-    }
 
+    }
+    //--------------------------------------------------------------------------------------------------
         public void updateSeatBooking ( int screenId, int seatNumber, boolean isBooked, String seat_status){
 
             String sql = "UPDATE seats SET isBooked = ?, seat_status = ? WHERE screen_id = ? AND seat_number = ?";
@@ -210,7 +138,9 @@ public class Seat {
                 System.out.println("No seat found with the specified details.");
             }
         }
-    }
+
+
+}
 
 
 

@@ -7,118 +7,193 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class Booking {
-    private DatabaseOperation db = new DatabaseOperation();
-    private Scanner sc = new Scanner(System.in);
+public class Booking extends  User {
+    public DatabaseOperation db = new DatabaseOperation();
+     Scanner sc = new Scanner(System.in);
     Showtime st = new Showtime();
-    Seat s=new Seat();
+    Seat s = new Seat();
 
+    public void bookTicket(int userID) {
+        //  Show available movies
+        System.out.println("🎬 Available Movies: ");
+        Movie m = new Movie();
+        m.showMovies();
 
-public void bookTicket(int userID) {
-    System.out.println("Available Showtimes: ");
-    st.showShowtimes(); // Display available showtimes
-    Seat se = new Seat();
-    // Display available seats for the selected showtime
+        //  Prompt the user to select a movie
+        System.out.print("Enter the Movie ID you'd like to watch: ");
+        int movieID = sc.nextInt();
 
-    System.out.println("Enter a showtime ID: ");
-    int showtimeID = sc.nextInt();
-    se.availableSeatsInShowtime(showtimeID);
+        // Show theaters, screens, and showtimes for the selected movie
+        System.out.println("🎭 Theaters and Showtimes for the selected movie:");
+        showTheaterAndScreenDetails(movieID);
 
-    // List movies available in the theater
-    System.out.println("List of movies available in the theater: ");
-    Movi m = new Movi();
-    m.showMovies();
+        //  the user to select a showtime
+        System.out.print("Enter the Show ID to proceed: ");
+        int showID = sc.nextInt();
 
-//    // Ask for seat ID to book
-//    System.out.println("list of seats avilable");
-//
-//    s.availableSeatsInShowtime(showtimeID);
+        //  Show available seats for the selected showtime
+        System.out.println("💺 Available Seats for the selected showtime:");
+        Seat se = new Seat();
+        se.availableSeatsInShowtime(showID);
 
-    System.out.println("Enter Seat ID to book: ");
-    int seatID = sc.nextInt();
+        //  Prompt the user to select a seat
+        System.out.print("Enter Seat ID to book: ");
+        int seatID = sc.nextInt();
 
-
-
-    String sqlCheck = "SELECT * FROM seats WHERE seat_id = ? AND isBooked = false";
-    boolean isAvailable = false;
-    ResultSet rs = null; // Declare ResultSet outside the try block
-    try (Connection conn = db.connectToDatabase();
-         PreparedStatement ps = conn.prepareStatement(sqlCheck)) {
-        ps.setInt(1, seatID);
-        rs = ps.executeQuery(); // Initialize rs here
-        if (rs.next()) {
-            isAvailable = true;
+        // Check if the seat is available
+        if (!se.isSeatAvailable(seatID)) {
+            System.out.println("❌ Seat is already booked. Please choose another seat.");
+            return;
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        try {
-            if (rs != null) rs.close(); // Close the ResultSet
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
-    if (isAvailable) {
-        // Proceed with booking
-        String sql = "INSERT INTO booking (USERID, seatID, SHOWID) VALUES (?, ?, ?)";
-        Object[] values = {userID, seatID, showtimeID};
+        //  Book the ticket
+        String sql = "INSERT INTO booking (USERID, seatID, SHOWID, STATUS) VALUES (?, ?, ?, 'BOOKED')";
+        Object[] values = {userID, seatID, showID};
         int rowsAffected = db.executeUpdate(sql, values);
 
         if (rowsAffected > 0) {
-            System.out.println("Ticket booked successfully!");
-
-            // Update the seat status to booked
+            System.out.println("✅ Ticket booked successfully!");
             updateSeatBooking(seatID, true);
         } else {
-            System.out.println("Booking failed. Please try again.");
+            System.out.println("❌ Booking failed. Please try again.");
         }
-    } else {
-        System.out.println("Seat is already booked. Please choose another seat.");
+    }
+
+//-------------------------------------------------------------------------------------
+public void availableSeatsInShowtime(int showtimeID) {
+    String sql = "SELECT seat_id, isBooked FROM seats WHERE SHOWID = ?";
+    boolean hasAvailableSeats = false;
+
+    try (Connection conn = db.connectToDatabase();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, showtimeID);
+        ResultSet rs = ps.executeQuery();
+
+        System.out.println("+------------+-----------------+");
+        System.out.println("| Seat ID    | Status          |");
+        System.out.println("+------------+-----------------+");
+        while (rs.next()) {
+            int seatID = rs.getInt("seat_id");
+            boolean isBooked = rs.getBoolean("isBooked");
+            String status = isBooked ? "Booked" : "Available";
+            if (!isBooked) {
+                hasAvailableSeats = true;  // If there are any available seats, mark it as true
+            }
+            System.out.printf("| %-10d | %-15s |\n", seatID, status);
+        }
+        System.out.println("+------------+-----------------+");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    // If no available seats, inform the user and exit the method
+    if (!hasAvailableSeats) {
+        System.out.println("No available seats for this showtime.");
+        return;
     }
 }
-    public void availableSeatsInShowtime(int showtimeID) {
-        String sql = "SELECT seat_id, isBooked FROM seats WHERE SHOWID = ?";
+
+    //--------------------------------------------------------------------------------------------
+    public void updateSeatBooking(int seatID, boolean isBooked) {
+        String sql = "UPDATE seats SET isBooked = ? WHERE seat_id = ?";
+        Object[] values = {isBooked ? 1 : 0, seatID};
+        int rowsAffected = db.executeUpdate(sql, values);
+        if (rowsAffected > 0) {
+            System.out.println("Seat status updated to booked.");
+        } else {
+            System.out.println("Failed to update seat status.");
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    private void showTheaterAndScreenDetails(int movieID) {
+        String sql = """
+                    SELECT 
+                        t.NAME AS Theater_Name,
+                        s.SCREENID AS Screen_ID,
+                        sh.SHOWID AS Show_ID,
+                        sh.SHOWTIME AS Showtime
+                    FROM 
+                        showtime sh
+                    JOIN 
+                        theater t ON sh.THEATERID = t.THEATERID
+                    JOIN 
+                        screen s ON sh.SCREENID = s.SCREENID
+                    WHERE 
+                        sh.MOVIID = ?;
+                """;
+
         try (Connection conn = db.connectToDatabase();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, showtimeID);
+            ps.setInt(1, movieID);
             ResultSet rs = ps.executeQuery();
 
-            System.out.println("+------------+-----------------+");
-            System.out.println("| Seat ID    | Status          |");
-            System.out.println("+------------+-----------------+");
+            // Displaying theater and showtimes information
+            System.out.println("+-------------------------------------------------------+");
+            System.out.println("| Theater Name   | Screen ID | Show ID | Showtime      |");
+            System.out.println("+-------------------------------------------------------+");
+
             while (rs.next()) {
-                int seatID = rs.getInt("seat_id");
-                boolean isBooked = rs.getBoolean("isBooked");
-                String status = isBooked ? "Booked" : "Available";
-                System.out.printf("| %-10d | %-15s |\n", seatID, status);
+                String theaterName = rs.getString("Theater_Name");
+                int screenID = rs.getInt("Screen_ID");
+                int showID = rs.getInt("Show_ID");
+                String showtime = rs.getString("Showtime");
+
+                // Print the details for each showtime
+                System.out.printf("| %-15s | %-9d | %-7d | %-15s |\n", theaterName, screenID, showID, showtime);
             }
-            System.out.println("+------------+-----------------+");
+
+            System.out.println("+-------------------------------------------------------+");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    public void seeTicket(int userID) {
-        System.out.println("Tickets Booked at different showtimes:");
-        db.getAllBookingsForUser(userID);
-//        System.out.print("Enter ShowtimeID to know information: ");
-//        int showtimeID_choice = sc.nextInt();
-//        st.showShowtimes(showtimeID);
-    }
-
+    //--------------------------------------------------------------------------------------------
     public void cancelTicket(int userID) {
-        System.out.println("Tickets Booked at different showtimes:");
-        db.getAllBookingsForUser(userID);
-        System.out.print("Enter BookingID to cancel Booking: ");
+        System.out.println("Tickets Booked at Different Showtimes:");
 
-        //saving the bookings details
-        int bookingID_choice = sc.nextInt();
-        sc.nextLine();
-        System.out.println("reason for cancelling ");
-        String cancelReason=sc.nextLine();
-        String sql = "UPDATE booking SET Status = 1, CANCELDATE = NOW(), CANCELACTIONREASON = ? WHERE BookingID = ?";
+        // Fetch all bookings for the user and display in a table format
+        String sql = "SELECT BookingID, SHOWID, SeatID, Status, CancelDate FROM booking WHERE UserID = ?";
         try (Connection conn = db.connectToDatabase();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+
+            // Displaying the table headers
+            System.out.println("+------------+-------------+--------+--------------------+");
+            System.out.println("| BookingID  | ShowtimeID  | SeatID | Status             | CancelDate        |");
+            System.out.println("+------------+-------------+--------+--------------------+-------------------+");
+
+            // Fetch and display the booking details
+            while (rs.next()) {
+                int bookingID = rs.getInt("BookingID");
+                int showtimeID = rs.getInt("SHOWID");
+                int seatID = rs.getInt("SeatID");
+                String status = rs.getString("Status"); // Fetch status as a string
+                String cancelDate = rs.getString("CancelDate");
+
+                // Display booking information, handling the status as a string
+                System.out.printf("| %-10d | %-11d | %-6d | %-18s | %-17s |\n", bookingID, showtimeID, seatID, status, cancelDate);
+            }
+            System.out.println("+------------+-------------+--------+--------------------+-------------------+");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        System.out.print("\nEnter BookingID to cancel booking: ");
+        int bookingID_choice = sc.nextInt();
+        sc.nextLine();  // Consume the remaining newline character
+
+        // Asking for the cancellation reason
+        System.out.println("Reason for cancelling:");
+        String cancelReason = sc.nextLine();
+
+        // SQL to cancel the booking
+        String sqlUpdate = "UPDATE booking SET Status = 'CANCELLED', CancelDate = NOW(), CancelActionReason = ? WHERE BookingID = ?";
+        try (Connection conn = db.connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
             ps.setString(1, cancelReason); // Set cancellation reason
             ps.setInt(2, bookingID_choice); // Set booking ID
 
@@ -132,106 +207,45 @@ public void bookTicket(int userID) {
             e.printStackTrace();
         }
     }
-
-//public void cancelTicket(int userID) {
-//    System.out.println("Tickets Booked at different showtimes:");
-//    ResultSet rs;  // Fetch the user's bookings
-//    rs = db.getAllBookingsForUser(userID);
+    //________________________________________________________________________________________________________
+//    public void viewBookings(int userId) {
+//        System.out.println("📅 3. View Your Ticket Bookings");
+//        int userId = userId; // Set the userId to fetch bookings for the correct user
 //
-//    // Table header
-//    System.out.println("+------------+----------------------+--------------------+---------------------+");
-//    System.out.printf("| %-10s | %-20s | %-18s | %-19s |\n", "Booking ID", "Movie Title", "Showtime", "Booking Status");
-//    System.out.println("+------------+----------------------+--------------------+---------------------+");
+//        // SQL query to fetch bookings for the user from the booking table
+//        String query = "SELECT * FROM booking WHERE UserID = " + userId;
 //
-//    try {
-//        boolean foundBookings = false;
-//        while (rs.next()) {
-//            int bookingID = rs.getInt("BookingID");
-//            String movieTitle = rs.getString("movieTitle");
-//            String showtime = rs.getString("showtime");  // Assuming it's a string; adjust accordingly
-//            String status = rs.getString("Status");  // Assuming 0=Booked, 1=Cancelled, etc.
-//
-//            // Print booking details in table format
-//            System.out.printf("| %-10d | %-20s | %-18s | %-19s |\n", bookingID, movieTitle, showtime, status);
-//            foundBookings = true;
-//        }
-//
-//        // If no bookings found
-//        if (!foundBookings) {
-//            System.out.println("| No bookings found for this user.                     |");
-//        }
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//    } finally {
 //        try {
-//            if (rs != null) {
-//                rs.close();  // Close ResultSet
+//            ResultSet rs = db.executeQuery(query);
+//
+//            // Check if the user has any bookings
+//            if (rs.next()) {
+//                System.out.println("\nYour Booked Tickets:\n");
+//
+//                // Print header of the table
+//                System.out.printf("%-12s %-10s %-12s %-20s %-15s\n", "Booking ID", "Movie ID", "Theater ID", "Showtime", "Seats Booked");
+//                System.out.println("--------------------------------------------------------------");
+//
+//                // Display each booking as a row in the table
+//                do {
+//                    int bookingId = rs.getInt("BookingID");
+//                    int movieId = rs.getInt("MovieID");
+//                    int theaterId = rs.getInt("TheaterID");
+//                    String showtime = rs.getString("Showtime");
+//                    int seatsBooked = rs.getInt("SeatsBooked");
+//
+//                    System.out.printf("%-12d %-10d %-12d %-20s %-15d\n", bookingId, movieId, theaterId, showtime, seatsBooked);
+//                } while (rs.next()); // Iterate over all bookings
+//            } else {
+//                System.out.println("You don't have any bookings yet.");
 //            }
 //        } catch (SQLException e) {
 //            e.printStackTrace();
+//            System.out.println("An error occurred while fetching your bookings.");
 //        }
 //    }
 
-//    // Table footer
-//    System.out.println("+------------+----------------------+--------------------+---------------------+");
-//    System.out.print("Enter BookingID to cancel Booking: ");
-//
-//    // Saving the bookings details
-//    int bookingID_choice = sc.nextInt();
-//    sc.nextLine();
-//    System.out.println("Reason for cancelling: ");
-//    String cancelReason = sc.nextLine();
-//
-//    String sql = "UPDATE booking SET Status = 1, CANCELDATE = NOW(), CANCELACTIONREASON = ? WHERE BookingID = ?";
-//    try (Connection conn = db.connectToDatabase();
-//         PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setString(1, cancelReason); // Set cancellation reason
-//        ps.setInt(2, bookingID_choice); // Set booking ID
-//
-//        int rowsAffected = ps.executeUpdate(); // Execute update query
-//        if (rowsAffected > 0) {
-//            System.out.println("Booking cancelled successfully.");
-//        } else {
-//            System.out.println("Something went wrong. Booking not cancelled.");
-//        }
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//    }
-//}
-//public void availableSeatsInShowtime(int showtimeID) {
-//    String sql = "SELECT seat_id FROM seats WHERE SHOWID = ? AND isBooked = false";
-//    try (Connection conn = db.connectToDatabase();
-//         PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setInt(1, showtimeID);
-//        ResultSet rs = ps.executeQuery();
-//
-//        System.out.println("+------------+-----------------+");
-//        System.out.println("| Seat ID    | Status          |");
-//        System.out.println("+------------+-----------------+");
-//        while (rs.next()) {
-//            int seatID = rs.getInt("seat_id");
-//            System.out.printf("| %-10d | Available       |\n", seatID);
-//        }
-//        System.out.println("+------------+-----------------+");
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//    }
-//}
 
-
-    private void updateSeatBooking(int seatID, boolean isBooked) {
-        String sql = "UPDATE seats SET isBooked = ? WHERE seat_id = ?";
-        Object[] values = {isBooked ? 1 : 0, seatID};
-        int rowsAffected = db.executeUpdate(sql, values);
-        if (rowsAffected > 0) {
-            System.out.println("Seat status updated to booked.");
-        } else {
-            System.out.println("Failed to update seat status.");
-        }
-    }
 }
-
-
-
 
 

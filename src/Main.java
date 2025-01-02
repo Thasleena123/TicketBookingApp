@@ -1,8 +1,7 @@
 package src;
 
-import java.sql.Timestamp;
-import java.util.Scanner;
 
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -58,7 +57,7 @@ public class Main {
 //
 //
 //-------------------booking------------------------------------
-            Scanner sc2 = new Scanner(System.in);
+            Scanner sc = new Scanner(System.in);
            DatabaseOperation db=new DatabaseOperation();
            MovieTicketDriver mtd=new MovieTicketDriver();
            User u=new User();
@@ -69,7 +68,7 @@ public class Main {
             System.out.println("Press 3 to login as admin.");
             System.out.println("---------------------------------------");
             System.out.print("Enter your choice: ");
-            choice = sc2.nextInt();
+            choice = sc.nextInt();
             switch (choice) {
                 case 1:
                     mtd.user_signup();
@@ -86,7 +85,7 @@ public class Main {
                 default:
                     System.out.println("Invalid choice! Please try again.");
             }
-
+      //  User user = new User();
 
         // admin details------------------------------
 

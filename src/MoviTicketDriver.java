@@ -1,15 +1,11 @@
 package src;
 
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Scanner;
 
 class MovieTicketDriver {
-     Scanner sc = new Scanner(System.in);
-     DatabaseOperation db = new DatabaseOperation();
+    Scanner sc = new Scanner(System.in);
+    DatabaseOperation db = new DatabaseOperation();
 
     // Methods to sign up and login for user class
     public void user_signup() {
@@ -71,30 +67,7 @@ class MovieTicketDriver {
         }
     }
 
-//    // Methods to sign up and login for admin class
-//    static void admin_signup() {
-//        System.out.println("Enter your username: ");
-//        String username = sc.next();
-//
-//        System.out.println("Enter your password: ");
-//        String password = sc.next();
-//
-//        System.out.println("Enter your phone number: ");
-//        String phone = sc.next();
-//
-//        // `isadmin` is 1 for admins
-//        int isAdmin = 1;
-//
-//        String sql = "INSERT INTO user(username, password, isadmin, phoneno) VALUES(?, ?, ?, ?)";
-//        Object[] values = {username, password, isAdmin, phone};
-//        int rowsAffected = db.executeUpdate(sql, values);
-//
-//        if (rowsAffected > 0) {
-//            System.out.println("Admin registered successfully");
-//        } else {
-//            System.out.println("Something went wrong. Sign-up failed.");
-//        }
-//    }
+
 
     public void admin_login() {
         System.out.println("Enter your username: ");
@@ -110,10 +83,12 @@ class MovieTicketDriver {
             System.out.println("Login Successful!");
             Admin a = new Admin();
             int userid = db.getUserID(username);
-            a.adminMenu(userid);
+//            a.adminMenu(userid);
+
         } else {
             System.out.println("Invalid password or not an admin! Try again!");
         }
     }
 }
+
 
