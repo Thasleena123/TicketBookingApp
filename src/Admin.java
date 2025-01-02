@@ -46,7 +46,7 @@ public class Admin extends User {
             // Check if the user is an admin
             if (!db.isAdmin(userID)) {
                 System.out.println("You are not authorized to access the admin menu.");
-                return; // Exit the method if not an admin
+                return;
             }
 
 
@@ -66,9 +66,9 @@ public class Admin extends User {
             System.out.println("PRESS 8 TO SEE SCREENS IN THE THEATERS");
             System.out.println("PRESS 9 TO ADD SEATS TO SCREENS");
             System.out.println("PRESS 10 TO SEE SEATS IN THE SCREEN ");
-            System.out.println("PRESS 11 TO BOOK A TICKET");
-            System.out.println("PRESS 12 TO SEE TICKETBOOKING");
-            System.out.println("PRESS 13 TO CANCEL TICKET BOOKING ");
+            System.out.println("PRESS 11 TO VIEW MOVIES ON SCREENS");
+            System.out.println("PRESS 12 TO REMOVE MOVIES FROM SCREEN");
+            System.out.println("PRESS 13 TO REMOVE THEATER");
             System.out.println("PRESS 14 TO EXIT");
             System.out.println("ENTER YOUR CHOICE");
             choice = sc.nextInt();
@@ -89,13 +89,14 @@ public class Admin extends User {
                 case 2:
                     m.showMovies();
                     break;
+
                 case 3:
-                    //set a movi available for showtime
+                    // Set a movie available for showtime
                     System.out.println("Enter Movie ID:");
                     movieid = sc.nextInt();
                     System.out.println("Enter Theater ID:");
                     theater_id = sc.nextInt();
-                    System.out.println("enter the screen Id");
+                    System.out.println("Enter the Screen Id:");
                     screen_id = sc.nextInt();
                     System.out.println("Enter Showtime hour:");
                     showtime_hour = sc.nextInt();
@@ -103,12 +104,23 @@ public class Admin extends User {
                     showtime_min = sc.nextInt();
                     LocalDateTime localDateTime = LocalDateTime.now().withHour(showtime_hour).withMinute(showtime_min).withSecond(0);
                     showtime = Timestamp.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                    System.out.println("enter the total number of seats available");
+                    System.out.println("Enter the total number of seats available:");
                     total_seats = sc.nextInt();
-                    System.out.println("enter the available number of seats");
+                    System.out.println("Enter the available number of seats:");
                     available_seats = sc.nextInt();
-                    st.insertShowtime(movieid, theater_id, screen_id, showtime,  available_seats);
+
+                    // Insert the showtime and get the generated showtime_id
+                    int showtime_id = st.insertShowtime(movieid, theater_id, screen_id, showtime, available_seats);
+
+                    if (showtime_id != -1) {
+                        System.out.println("Showtime added successfully with Showtime ID: " + showtime_id);
+                        // Store showtime_id to use later in case 9
+                    } else {
+                        System.out.println("Failed to insert showtime. Cannot add seats.");
+                    }
                     break;
+
+
                 case 4:
                     //see all shows
                     st.showShowtimes();
@@ -130,13 +142,27 @@ public class Admin extends User {
                     break;
                 case 7:
                     //ADD SCREEN TO THE THEATER
+//                    System.out.println("Enter Theater ID:");
+//                    theater_id = sc.nextInt();
+//                    System.out.println("Enter Screen Name:");
+//                    String screenName = sc.next();
+//                    System.out.println("Enter total seats available:");
+//                    int capacity = sc.nextInt();
+//                    scr.insertScreen(theater_id,screenNumber, totalSeats);
+//                    scr.addShowToScreen(screenName);
+//                    break;
                     System.out.println("Enter Theater ID:");
                     theater_id = sc.nextInt();
                     System.out.println("Enter Screen Number:");
-                    String screenName = sc.next();
-                    System.out.println("Enter total seats available:");
-                    int capacity = sc.nextInt();
-                    scr.insertScreen(theater_id, String.valueOf(screenNumber), totalSeats);
+                    screenNumber = sc.nextInt();
+                    System.out.println("Enter Total Seats available:");
+                    totalSeats = sc.nextInt();
+
+                    // Insert screen with validation
+                    scr.insertScreen(theater_id, screenNumber, totalSeats);
+
+                    // Check and add shows to the screen to meet the requirement of 4 shows
+                    scr.addShowToScreen(screenNumber);
                     break;
                 case 8:
                     //see screens in the theater
@@ -146,27 +172,45 @@ public class Admin extends User {
                     break;
 
                 case 9:
+                    // Add seats to the screen for a showtime
                     System.out.println("Enter Screen ID:");
                     screen_id = sc.nextInt();
-                    System.out.println("Enter Level of Seats (e.g., A, B,C..):");
+                    System.out.println("Enter Level of Seats (e.g., A, B, C...):");
                     level = sc.next();
                     System.out.println("Enter Total Number of Seats:");
                     totalSeats = sc.nextInt();
-                    se.insertSeats(screen_id, level, totalSeats);
+
+                    // Assuming you have inserted a showtime earlier, we need to get the showtime_id for that showtime
+                    System.out.println("Enter Showtime ID (the one assigned when showtime was inserted):");
+                    int showtimeid = sc.nextInt();  // Fetch the showtime_id manually or keep track of it after inserting the showtime
+
+                    // Now insert seats for that showtime
+                    se.insertSeats(screen_id, level, totalSeats, showtimeid);
                     break;
+
                 case 10:
                     System.out.println("Enter Screen ID:");
                     screen_id = sc.nextInt();
                     se.showSeatsInScreen(screen_id);
                     break;
-//                case 11:
-//                    // Book a ticket
-//                    System.out.println("Enter User ID:");
-//                    int userID = sc.nextInt();
-//                    Booking booking = new Booking();
-//                    booking.bookTicket(userID);
-//                    break;
-
+                case 11:
+                    // Show movies on screens
+                    scr.showMoviesOnScreens();
+                    break;
+                case 12:
+                    // Remove movie from screen
+                    System.out.println("Enter Movie ID to remove:");
+                    int movie_id = sc.nextInt();
+                    System.out.println("Enter Screen ID to remove movie from:");
+                    int screen_id = sc.nextInt();
+                    scr.removeMovieFromScreen(movie_id, screen_id);
+                    break;
+                case 13:
+                    // Remove theater
+                    System.out.println("Enter Theater ID to remove:");
+                    int theater_id = sc.nextInt();
+                    t.removeTheater(theater_id);
+                    break;
 
                 case 14:
                     //terminate the program
