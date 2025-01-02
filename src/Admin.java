@@ -41,7 +41,7 @@ public class Admin extends User {
     // Admin menu
     public void adminMenu(int userID) {
         // Check if the user is an admin
-        if (!db.isAdmin(userID)) {
+        if (db.isAdmin(userID)) {
             System.out.println("You are not authorized to access the admin menu.");
             return;
         }

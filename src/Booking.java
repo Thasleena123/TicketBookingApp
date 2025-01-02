@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class Booking extends  User {
+public class Booking  {
     public DatabaseOperation db = new DatabaseOperation();
      Scanner sc = new Scanner(System.in);
     Showtime st = new Showtime();
@@ -207,43 +207,7 @@ public void availableSeatsInShowtime(int showtimeID) {
             e.printStackTrace();
         }
     }
-    //________________________________________________________________________________________________________
-//    public void viewBookings(int userId) {
-//        System.out.println("📅 3. View Your Ticket Bookings");
-//        int userId = userId; // Set the userId to fetch bookings for the correct user
-//
-//        // SQL query to fetch bookings for the user from the booking table
-//        String query = "SELECT * FROM booking WHERE UserID = " + userId;
-//
-//        try {
-//            ResultSet rs = db.executeQuery(query);
-//
-//            // Check if the user has any bookings
-//            if (rs.next()) {
-//                System.out.println("\nYour Booked Tickets:\n");
-//
-//                // Print header of the table
-//                System.out.printf("%-12s %-10s %-12s %-20s %-15s\n", "Booking ID", "Movie ID", "Theater ID", "Showtime", "Seats Booked");
-//                System.out.println("--------------------------------------------------------------");
-//
-//                // Display each booking as a row in the table
-//                do {
-//                    int bookingId = rs.getInt("BookingID");
-//                    int movieId = rs.getInt("MovieID");
-//                    int theaterId = rs.getInt("TheaterID");
-//                    String showtime = rs.getString("Showtime");
-//                    int seatsBooked = rs.getInt("SeatsBooked");
-//
-//                    System.out.printf("%-12d %-10d %-12d %-20s %-15d\n", bookingId, movieId, theaterId, showtime, seatsBooked);
-//                } while (rs.next()); // Iterate over all bookings
-//            } else {
-//                System.out.println("You don't have any bookings yet.");
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            System.out.println("An error occurred while fetching your bookings.");
-//        }
-//    }
+  //  ________________________________________________________________________________________________________
 
 
 }

@@ -77,13 +77,13 @@ public class DatabaseOperation {
     }
 
     public boolean isAdmin(int userID) {
-        String sql = "SELECT isadmin FROM user WHERE userid = ?";
+        String sql = "SELECT isAdmin FROM user WHERE userid = ?";
         try (Connection conn = connectToDatabase();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getBoolean("isadmin");
+                return rs.getBoolean("isAdmin");
             }
         } catch (SQLException e) {
             System.out.println("Error checking admin status: " + e.getMessage());
@@ -110,7 +110,7 @@ public class DatabaseOperation {
 
 
     public boolean registerUser(String username, String password, String phone, boolean isAdmin) {
-        String sql = "INSERT INTO user (username, password, isadmin, phoneno) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO user (username, password, isAdmin, phone) VALUES (?, ?, ?, ?)";
         try (Connection conn = connectToDatabase();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);

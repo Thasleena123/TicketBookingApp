@@ -65,15 +65,14 @@ public class User {
             System.out.println("----------  User Menu  ----------");
             System.out.println("🎬 1. Check Out the Movies Available Now ");
             System.out.println("🎟️ 2. Book a Ticket ");
-            System.out.println("📅 3. View Your Ticket Bookings ");
-            System.out.println("❌ 4. Cancel Your Ticket Booking ");
-            System.out.println("👋 5. Exit the App ");
-            System.out.print("👉 Please enter your choice (1-5): ");
+            System.out.println("❌ 3. Cancel Your Ticket Booking ");
+            System.out.println("👋 4. Exit the App ");
+            System.out.print("👉 Please enter your choice (1-4): ");
 
             //--------------------------------------------------------------------------------------------------
 
             if (!sc.hasNextInt()) {
-                System.out.println(" Invalid input! Please enter a number between 1 and 5.");
+                System.out.println(" Invalid input! Please enter a number between 1 and 4.");
                 sc.next(); // Clear invalid input
                 continue;
             }
@@ -93,19 +92,16 @@ public class User {
                 case 2:
                     b.bookTicket(userID);
                     break;
-//                case 3:
-//                    b.seeTicket(userID);
-//                    break;
-                case 4:
+                case 3:
                     b.cancelTicket(userID);
                     break;
-                case 5:
+                case 4:
                     System.out.println("Exiting user menu. Goodbye!");
                     return; // Exit user menu
                 default:
                     System.out.println("Invalid choice! Please enter a number between 1 and 5.");
                     break;
-           }
+            }
         }
     }
 

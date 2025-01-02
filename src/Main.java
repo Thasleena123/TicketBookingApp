@@ -80,7 +80,7 @@ public class Main {
 
                 case 3:
                     // Admin login
-                  mtd.admin_login();
+                  mtd.adminLogin();
                     break;
                 default:
                     System.out.println("Invalid choice! Please try again.");
@@ -90,8 +90,6 @@ public class Main {
         // admin details------------------------------
 
 
-//        User user = new User();
-//        user.insertAdmin();
 
     }
 }
