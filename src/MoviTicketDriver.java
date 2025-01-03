@@ -81,6 +81,7 @@ class MovieTicketDriver {
             int userID = databaseOperation.getUserID(username);
             Admin admin = new Admin();
             admin.adminMenu(userID);
+
         } else {
             System.out.println("Invalid credentials or you are not an admin.");
         }

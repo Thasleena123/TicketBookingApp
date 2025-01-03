@@ -474,3 +474,29 @@ public class dumy {
 //    }
     }
 }
+
+//    public void checkAndCreateDefaultAdmin() {
+//        String checkAdminSQL = "SELECT COUNT(*) FROM user WHERE isAdmin = true";
+//
+//        try (Connection conn = databaseOperation.connectToDatabase();
+//             PreparedStatement ps = conn.prepareStatement(checkAdminSQL)) {
+//
+//            ResultSet rs = ps.executeQuery();
+//            if (rs.next() && rs.getInt(1) == 0) {
+//
+//                String insertAdminSQL = "INSERT INTO user (username, password, isAdmin, phone) VALUES (?, ?, ?, ?)";
+//                try (PreparedStatement insertPs = conn.prepareStatement(insertAdminSQL)) {
+//                    insertPs.setString(1, "admin");
+//                    insertPs.setString(2, "admin123");
+//                    insertPs.setBoolean(3, true);
+//                    insertPs.setString(4, "1234567890");
+//                    int rowsAffected = insertPs.executeUpdate();
+//                    if (rowsAffected > 0) {
+//                        System.out.println("Default admin created successfully.");
+//                    }
+//                }
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }

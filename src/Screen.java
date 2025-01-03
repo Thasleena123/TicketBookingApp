@@ -63,7 +63,7 @@ public void showScreensInTheater(int theaterId) {
         System.out.printf("| %-14s | %-14s | %-14s |\n", "Theater ID", "Screen Number", "Total Seats");
         System.out.println("+----------------+----------------+----------------+");
 
-        // Print table rows
+
         while (rs.next()) {
             int theaterIdFromDB = rs.getInt("theaterId");
             int screenNumber = rs.getInt("screenNumber");
@@ -72,7 +72,7 @@ public void showScreensInTheater(int theaterId) {
             System.out.printf("| %-14d | %-14d | %-14d |\n", theaterIdFromDB, screenNumber, totalSeats);
         }
 
-        // Print table footer
+
         System.out.println("+----------------+----------------+----------------+");
 
     } catch (SQLException e) {

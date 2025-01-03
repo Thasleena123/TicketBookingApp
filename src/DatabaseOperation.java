@@ -201,4 +201,20 @@ public class DatabaseOperation {
         }
         return false;
     }
+    public boolean isTheaterIdValid(int theaterId) {
+        String sql = "SELECT 1 FROM theater WHERE theaterId = ?";
+
+        try (Connection conn = connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, theaterId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // Returns true if the theater ID exists
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Default to false if an exception occurs
+    }
+
 }
