@@ -167,4 +167,38 @@ public class DatabaseOperation {
             System.out.println("Error fetching bookings: " + e.getMessage());
         }
     }
+    public boolean validateAdminLogin(String username, String password) {
+        String sql = "SELECT password, isAdmin FROM user WHERE username = ?";
+        try (Connection conn =connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String storedPassword = rs.getString("password");
+                boolean isAdmin = rs.getBoolean("isAdmin");
+
+                // Check if the password matches and if the user is an admin
+                return password.equals(storedPassword) && isAdmin;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean usernameExists(String username) {
+        String sql = "SELECT COUNT(*) FROM user WHERE username = ?";
+        try (Connection conn =connectToDatabase();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

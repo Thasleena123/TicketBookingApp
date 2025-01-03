@@ -32,7 +32,7 @@ public class Admin extends User {
     Screen scr = new Screen();
     Seat se = new Seat();
 
-    // Method to take user ID for admin purposes
+
     public int takeUserId() {
         System.out.println("Enter user ID: ");
         return sc.nextInt();
@@ -41,7 +41,7 @@ public class Admin extends User {
     // Admin menu
     public void adminMenu(int userID) {
         // Check if the user is an admin
-        if (db.isAdmin(userID)) {
+        if (!db.isAdmin(userID)) {
             System.out.println("You are not authorized to access the admin menu.");
             return;
         }
@@ -61,7 +61,8 @@ public class Admin extends User {
             System.out.println("Press 11 to View Movies on Screens");
             System.out.println("Press 12 to Remove Movie from Screen");
             System.out.println("Press 13 to Remove Theater");
-            System.out.println("Press 14 to Exit");
+            System.out.println("press 14 to add new admin");
+            System.out.println("Press 15 to Exit");
             System.out.println("Enter your choice: ");
             choice = sc.nextInt();
 
@@ -191,8 +192,11 @@ public class Admin extends User {
                     int theater_id_remove = sc.nextInt();
                     t.removeTheater(theater_id_remove);
                     break;
-
                 case 14:
+                    addNewAdmin(userID);
+                    break;
+
+                case 15:
                     // Exit the program
                     System.exit(0);
                     break;
