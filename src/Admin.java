@@ -42,11 +42,7 @@ public class Admin extends User {
 
     // Admin menu
     public void adminMenu(int userID) {
-        // Check if the user is an admin
-//        if (!db.isAdmin(userID)) {
-//            System.out.println("You are not authorized to access the admin menu.");
-//            return;
-        // }
+
 
         while (true) {
             System.out.println("-----ADMIN MENU-------");
@@ -58,13 +54,11 @@ public class Admin extends User {
             System.out.println("Press 6 to See All Theaters");
             System.out.println("Press 7 to Add Screen to Theater");
             System.out.println("Press 8 to See Screens in Theater");
-            System.out.println("Press 9 to Add Seats to Screen");
-            System.out.println("Press 10 to See Seats in Screen");
-            System.out.println("Press 11 to View Movies on Screens");
-            System.out.println("Press 12 to Remove Movie from Screen");
-            System.out.println("Press 13 to Remove Theater");
-            System.out.println("press 14 to add new admin");
-            System.out.println("Press 15 to Exit");
+            System.out.println("Press 9 to View Movies on Screens");
+            System.out.println("Press 10 to Remove Movie from Screen");
+            System.out.println("Press 11 to Remove Theater");
+            System.out.println("press 12 to add new admin");
+            System.out.println("Press 13 to Exit");
             System.out.println("Enter your choice: ");
             choice = sc.nextInt();
 
@@ -97,25 +91,19 @@ public class Admin extends User {
 //
                     System.out.println("Enter Screen ID: ");
                     screen_id = sc.nextInt();
-                    System.out.println("Enter Showtime Date (yyyy-MM-dd): ");
-                    String showtimeDate = sc.next(); // Example: "2025-01-03"
 
+
+
+
+                    System.out.println("Enter Start Date (yyyy-MM-dd): ");
+                    String startDateStr = sc.next();
                     System.out.println("Enter Showtime Hour: ");
                     int showtime_hour = sc.nextInt();
 
                     System.out.println("Enter Showtime Minute: ");
                     int showtime_min = sc.nextInt();
-
-                    // User input for start date and end date
-                    System.out.println("Enter Start Date (yyyy-MM-dd): ");
-                    String startDateStr = sc.next(); // Example: "2025-01-03"
-
                     System.out.println("Enter End Date (yyyy-MM-dd): ");
-                    String endDateStr = sc.next(); // Example: "2025-01-03"
-
-                    // Parse the user-provided date and time
-                    LocalDate date = LocalDate.parse(showtimeDate);
-                    LocalDateTime localShowtime = date.atTime(showtime_hour, showtime_min);
+                    String endDateStr = sc.next();
 
                     // Parse the start and end dates
                     LocalDate startDate = LocalDate.parse(startDateStr);
@@ -124,18 +112,18 @@ public class Admin extends User {
                     LocalDate endDate = LocalDate.parse(endDateStr);
                     LocalDateTime endDateTime = endDate.atTime(showtime_hour, showtime_min);
 
-                    // Convert to Timestamp
-                    Timestamp showtime = Timestamp.from(localShowtime.atZone(ZoneId.systemDefault()).toInstant());
                     Timestamp startTimestamp = Timestamp.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
                     Timestamp endTimestamp = Timestamp.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-                    // Output the results (you would insert them into the database)
-                    System.out.println("Showtime: " + showtime);
+
                     System.out.println("Start Date: " + startTimestamp);
                     System.out.println("End Date: " + endTimestamp);
+                    System.out.println("Inserting showtime with Start: " + startTimestamp + ", End: " + endTimestamp);
 
 
+                    st.insertShowtime(movieid, theater_id, screen_id, startTimestamp, endTimestamp);
                     break;
+
 
                 case 4:
                     // Show all showtimes
@@ -157,24 +145,36 @@ public class Admin extends User {
                     t.showTheateres();
                     break;
 
+
                 case 7:
                     // Add screen to theater
-
                     System.out.println("Enter Theater ID: ");
-                    theater_id = sc.nextInt();
-
+                    int theater_id = sc.nextInt();
 
                     if (!databaseOperation.isTheaterIdValid(theater_id)) {
                         System.out.println("Invalid Theater ID. Cannot add a screen.");
                         break;
                     }
-                System.out.println("Enter Screen Number: ");
-                screenNumber = sc.nextInt();
-                System.out.println("Enter Total Seats: ");
-                totalSeats = sc.nextInt();
 
-                screen.insertScreen(theater_id, screenNumber, totalSeats);
-                break;
+                    System.out.println("Enter Screen Number: ");
+                    int screenNumber = sc.nextInt();
+                    System.out.println("Enter Total Seats: ");
+                    int totalSeats = sc.nextInt();
+
+                    // Add the screen first
+                    screen.insertScreen(theater_id, screenNumber, totalSeats);
+                    System.out.println("Screen added successfully.");
+
+                    // Add seats to the newly added screen
+                    for (int seatNumber = 1; seatNumber <= totalSeats; seatNumber++) {
+                        // Insert seats without the level concept (no level, all seats are 'available' by default)
+                        se.insertSeats(screenNumber, seatNumber);
+
+
+                    }
+
+
+                    break;
 
             case 8:
                 // Show screens in theater
@@ -184,31 +184,11 @@ public class Admin extends User {
                 break;
 
             case 9:
-                // Add seats to screen
-                System.out.println("Enter Screen ID: ");
-                screen_id = sc.nextInt();
-                System.out.println("Enter Seat Level (A, B, C, etc.): ");
-                level = sc.next();
-                System.out.println("Enter Total Seats: ");
-                totalSeats = sc.nextInt();
-                System.out.println("Enter Showtime ID: ");
-                int showtimeid = sc.nextInt();
-                se.insertSeats(screen_id, level, totalSeats, showtimeid);
-                break;
-
-            case 10:
-                // Show seats in screen
-                System.out.println("Enter Screen ID: ");
-                screen_id = sc.nextInt();
-                se.showSeatsInScreen(screen_id);
-                break;
-
-            case 11:
                 // Show movies on screens
                 screen.showMoviesOnScreens();
                 break;
 
-            case 12:
+            case 10:
                 // Remove movie from screen
                 System.out.println("Enter Movie ID to remove: ");
                 int movie_id = sc.nextInt();
@@ -217,17 +197,17 @@ public class Admin extends User {
                 screen.removeMovieFromScreen(movie_id, screen_id_remove);
                 break;
 
-            case 13:
+            case 11:
                 // Remove theater
                 System.out.println("Enter Theater ID to remove: ");
                 int theater_id_remove = sc.nextInt();
                 t.removeTheater(theater_id_remove);
                 break;
-            case 14:
+            case 12:
                 addNewAdmin(userID);
                 break;
 
-            case 15:
+            case 13:
                 // Exit the program
                 System.exit(0);
                 break;

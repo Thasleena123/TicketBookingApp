@@ -1,6 +1,7 @@
 package src;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 
@@ -13,38 +14,10 @@ public class Screen {
         String sql = "INSERT INTO screen (theaterId,  screenNumber, totalSeats ) VALUES (?, ?, ?)";
         Object[] values = {theaterId, screenNumber, totalSeats};
         db.executeUpdate(sql, values);
-        System.out.println("Screen added successfully!");
+        //System.out.println("Screen added successfully!");
     }
 
-//    public void showScreensInTheater(int theaterId) {
-//        String sql = "SELECT * FROM screen WHERE theaterId = ?";
-//        ResultSet rs = null;
-//
-//        try (Connection conn = db.connectToDatabase();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, theaterId);
-//            rs = ps.executeQuery();
-//
-//            if (rs != null) {
-//
-//                while (rs.next()) {
-//                    System.out.println("theaterId: " + rs.getInt("theaterId"));
-//                    System.out.println("Screen Number: " + rs.getInt("screenNumber"));
-//                    System.out.println("TotalSeats available in the screen: " + rs.getInt("totalSeats"));
-//                }
-//            } else {
-//                System.out.println("No screens found for the specified theater.");
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (rs != null) rs.close();
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+
 public void showScreensInTheater(int theaterId) {
     String sql = "SELECT * FROM screen WHERE theaterId = ?";
     try (Connection conn = db.connectToDatabase();
@@ -82,34 +55,47 @@ public void showScreensInTheater(int theaterId) {
 
 
 
-//    public void showMoviesOnScreens() {
-//        String sql = "SELECT m.MOVIID, m.TITLE, s.SCREENID, s.SCREENNUMBER, st.showtime "
-//                + "FROM showtime st "
-//                + "JOIN movies m ON st.MOVIID = m.MOVIID "
-//                + "JOIN screen s ON st.SCREENID = s.SCREENID";
+//public void showMoviesOnScreens() {
+//    String sql = "SELECT m.MOVIID, m.TITLE, s.SCREENID, s.SCREENNUMBER, st.showtime "
+//            + "FROM showtime st "
+//            + "JOIN movies m ON st.MOVIID = m.MOVIID "
+//            + "JOIN screen s ON st.SCREENID = s.SCREENID";
 //
-//        try (Connection conn = db.connectToDatabase();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//    try (Connection conn = db.connectToDatabase();
+//         PreparedStatement ps = conn.prepareStatement(sql)) {
 //
-//            ResultSet rs = ps.executeQuery();
+//        ResultSet rs = ps.executeQuery();
 //
-//            System.out.println("Movies scheduled on screens:");
-//            while (rs.next()) {
-//                int movieId = rs.getInt("MOVIID");
-//                String movieTitle = rs.getString("TITLE");
-//                int screenId = rs.getInt("SCREENID");
-//                int screenNumber = rs.getInt("SCREENNUMBER");
-//                Timestamp showTime = rs.getTimestamp("showtime");
-//                System.out.println("Movie ID: " + movieId + " | Movie Title: " + movieTitle +
-//                        " | Screen ID: " + screenId + " | Screen Number: " + screenNumber +
-//                        " | Showtime: " + showTime);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
+//        if (!rs.isBeforeFirst()) { // Check if there are any results
+//            System.out.println("No movies scheduled on screens.");
+//            return;
 //        }
+//
+//        // Print table header
+//        System.out.println("+----------+--------------------+----------+----------------+-----------------------+");
+//        System.out.printf("| %-8s | %-18s | %-8s | %-14s | %-21s |\n", "Movie ID", "Movie Title", "Screen ID", "Screen Number", "Showtime");
+//        System.out.println("+----------+--------------------+----------+----------------+-----------------------+");
+//
+//        // Print table rows
+//        while (rs.next()) {
+//            int movieId = rs.getInt("MOVIID");
+//            String movieTitle = rs.getString("TITLE");
+//            int screenId = rs.getInt("SCREENID");
+//            int screenNumber = rs.getInt("SCREENNUMBER");
+//            Timestamp showTime = rs.getTimestamp("showtime");
+//
+//            System.out.printf("| %-8d | %-18s | %-8d | %-14d | %-21s |\n", movieId, movieTitle, screenId, screenNumber, showTime);
+//        }
+//
+//
+//        System.out.println("+----------+--------------------+----------+----------------+-----------------------+");
+//
+//    } catch (SQLException e) {
+//        e.printStackTrace();
 //    }
+//}
 public void showMoviesOnScreens() {
-    String sql = "SELECT m.MOVIID, m.TITLE, s.SCREENID, s.SCREENNUMBER, st.showtime "
+    String sql = "SELECT m.MOVIID, m.TITLE, s.SCREENID, s.SCREENNUMBER, st.start_time "
             + "FROM showtime st "
             + "JOIN movies m ON st.MOVIID = m.MOVIID "
             + "JOIN screen s ON st.SCREENID = s.SCREENID";
@@ -135,11 +121,14 @@ public void showMoviesOnScreens() {
             String movieTitle = rs.getString("TITLE");
             int screenId = rs.getInt("SCREENID");
             int screenNumber = rs.getInt("SCREENNUMBER");
-            Timestamp showTime = rs.getTimestamp("showtime");
 
-            System.out.printf("| %-8d | %-18s | %-8d | %-14d | %-21s |\n", movieId, movieTitle, screenId, screenNumber, showTime);
+
+            String showtime = rs.getTimestamp("start_time") != null
+                    ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(rs.getTimestamp("start_time"))
+                    : "N/A";
+
+            System.out.printf("| %-8d | %-18s | %-8d | %-14d | %-21s |\n", movieId, movieTitle, screenId, screenNumber, showtime);
         }
-
 
         System.out.println("+----------+--------------------+----------+----------------+-----------------------+");
 
@@ -147,6 +136,7 @@ public void showMoviesOnScreens() {
         e.printStackTrace();
     }
 }
+
 
 
     public void removeMovieFromScreen(int movie_id, int screen_id) {
@@ -190,7 +180,7 @@ public void showMoviesOnScreens() {
         }
     }
 
-    // Method to get the count of shows for a screen
+
     public int getShowCountForScreen(int screenId) {
         String sql = "SELECT COUNT(*) FROM showtime WHERE SCREENID = ?";
         try (Connection conn = db.connectToDatabase();
@@ -206,7 +196,7 @@ public void showMoviesOnScreens() {
         return 0;
     }
 
-    // Method to add a show to a screen
+
     public void addShow(int screenId) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter Movie ID: ");
@@ -221,7 +211,7 @@ public void showMoviesOnScreens() {
             return;
         }
 
-        // Check if the entered show time is in the future
+
         if (!isFutureDate(showTime)) {
             System.out.println("Error: Show time must be in the future.");
             return;
@@ -246,7 +236,7 @@ public void showMoviesOnScreens() {
     }
 
 public boolean isValidDateFormat(String showTime) {
-    // Regular expression to match the format 'YYYY-MM-DD HH:MM:SS'
+
     String regex = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
     if (!showTime.matches(regex)) {
         System.out.println("Error: The show time is missing the time part. Please ensure you enter the full format.");
@@ -273,6 +263,7 @@ public boolean isValidDateFormat(String showTime) {
             return false;
         }
     }
+
 }
 
 
