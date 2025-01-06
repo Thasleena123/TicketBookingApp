@@ -25,28 +25,7 @@ public class Theater {
         }
     }
 
-//    public void showTheateres() {
-//        System.out.println("Calling showTheateres method...");
-//        String sql = "select* from theater";
-//        ResultSet rs = db.getRecords(sql);
-//        try {
-//            while (rs.next()) {
-//                System.out.println("THEATERID:" + rs.getInt("THEATERID"));
-//                System.out.println("NAME :" + rs.getString("NAME"));
-//                System.out.println("LOCATION:" + rs.getString("LOCATION"));
-//
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (rs != null) rs.close();
-//
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-   // }
+
 public void showTheateres() {
     System.out.println("Calling showTheateres method...");
     String sql = "SELECT * FROM theater";

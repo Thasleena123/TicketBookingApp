@@ -32,7 +32,6 @@ public class Booking  {
             System.out.print("Enter the screenId to proceed: ");
             int screenId = sc.nextInt();
 
-            // Get the showID for the selected screenId
             int showID = getShowIDForScreen(screenId);
             if (showID == -1) {
                 System.out.println("❌ No show found for the selected screen. Please try again.");
@@ -44,7 +43,7 @@ public class Booking  {
             Seat se = new Seat();
             se.showSeatsInScreen(screenId);
 
-            // Prompt the user to select the number of tickets
+
             System.out.print("How many tickets would you like to book? ");
             int numTickets = sc.nextInt();
 
@@ -55,9 +54,9 @@ public class Booking  {
                 int seatID = sc.nextInt();
 
                 // Check if the seat is available
-                if (!se.isSeatAvailable(seatID)) {
+                if (!se.isSeatAvailable(seatID, screenId)) {
                     System.out.println("❌ Seat " + seatID + " is already booked. Please choose another seat.");
-                    i--; // Let the user try again for this ticket
+                    i--;
                     continue;
                 }
 
@@ -81,38 +80,38 @@ public class Booking  {
         }
 
 //-------------------------------------------------------------------------------------
-public void availableSeatsInShowtime(int showtimeID) {
-    String sql = "SELECT seat_id, isBooked FROM seats WHERE SHOWID = ?";
-    boolean hasAvailableSeats = false;
-
-    try (Connection conn = db.connectToDatabase();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, showtimeID);
-        ResultSet rs = ps.executeQuery();
-
-        System.out.println("+------------+-----------------+");
-        System.out.println("| Seat ID    | Status          |");
-        System.out.println("+------------+-----------------+");
-        while (rs.next()) {
-            int seatID = rs.getInt("seat_id");
-            boolean isBooked = rs.getBoolean("isBooked");
-            String status = isBooked ? "Booked" : "Available";
-            if (!isBooked) {
-                hasAvailableSeats = true;  // If there are any available seats, mark it as true
-            }
-            System.out.printf("| %-10d | %-15s |\n", seatID, status);
-        }
-        System.out.println("+------------+-----------------+");
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-
-    // If no available seats, inform the user and exit the method
-    if (!hasAvailableSeats) {
-        System.out.println("No available seats for this showtime.");
-        return;
-    }
-}
+//public void availableSeatsInShowtime(int showtimeID) {
+//    String sql = "SELECT seat_id, isBooked FROM seats WHERE SHOWID = ?";
+//    boolean hasAvailableSeats = false;
+//
+//    try (Connection conn = db.connectToDatabase();
+//         PreparedStatement ps = conn.prepareStatement(sql)) {
+//        ps.setInt(1, showtimeID);
+//        ResultSet rs = ps.executeQuery();
+//
+//        System.out.println("+------------+-----------------+");
+//        System.out.println("| Seat ID    | Status          |");
+//        System.out.println("+------------+-----------------+");
+//        while (rs.next()) {
+//            int seatID = rs.getInt("seat_id");
+//            boolean isBooked = rs.getBoolean("isBooked");
+//            String status = isBooked ? "Booked" : "Available";
+//            if (!isBooked) {
+//                hasAvailableSeats = true;  // If there are any available seats, mark it as true
+//            }
+//            System.out.printf("| %-10d | %-15s |\n", seatID, status);
+//        }
+//        System.out.println("+------------+-----------------+");
+//    } catch (SQLException e) {
+//        e.printStackTrace();
+//    }
+//
+//    // If no available seats, inform the user and exit the method
+//    if (!hasAvailableSeats) {
+//        System.out.println("No available seats for this showtime.");
+//        return;
+//    }
+//}
 
     //--------------------------------------------------------------------------------------------
 //
@@ -133,48 +132,57 @@ public void availableSeatsInShowtime(int showtimeID) {
 
     //-------------------------------------------------------------------------------------
 
-//    private void showTheaterAndScreenDetails(int movieID) {
-//        String sql = """
-//                    SELECT
-//                        t.NAME AS Theater_Name,
-//                        s.SCREENID AS Screen_ID,
-//                        sh.SHOWID AS Show_ID,
-//                        sh.SHOWTIME AS Showtime
-//                    FROM
-//                        showtime sh
-//                    JOIN
-//                        theater t ON sh.THEATERID = t.THEATERID
-//                    JOIN
-//                        screen s ON sh.SCREENID = s.SCREENID
-//                    WHERE
-//                        sh.MOVIID = ?;
-//                """;
+//public void showTheaterAndScreenDetails(int movieID) {
+//    String sql = """
+//                SELECT
+//                    t.NAME AS Theater_Name,
+//                    s.SCREENID AS Screen_ID,
+//                    sh.SHOWID_id AS Show_ID,
+//                    sh.start_time AS Showtime
+//                FROM
+//                    showtime sh
+//                JOIN
+//                    theater t ON sh.THEATERID = t.THEATERID
+//                JOIN
+//                    screen s ON sh.SCREENID = s.SCREENID
+//                WHERE
+//                    sh.MOVIID = ?;
+//            """;
 //
-//        try (Connection conn = db.connectToDatabase();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, movieID);
-//            ResultSet rs = ps.executeQuery();
+//    try (Connection conn = db.connectToDatabase();
+//         PreparedStatement ps = conn.prepareStatement(sql)) {
 //
-//            // Displaying theater and showtimes information
-//            System.out.println("+-------------------------------------------------------+");
-//            System.out.println("| Theater Name   | Screen ID | Show ID | Showtime      |");
-//            System.out.println("+-------------------------------------------------------+");
+//        // Set the movie ID parameter
+//        ps.setInt(1, movieID);
 //
-//            while (rs.next()) {
-//                String theaterName = rs.getString("Theater_Name");
-//                int screenID = rs.getInt("Screen_ID");
-//                int showID = rs.getInt("Show_ID");
-//                String showtime = rs.getString("Showtime");
 //
-//                // Print the details for each showtime
-//                System.out.printf("| %-15s | %-9d | %-7d | %-15s |\n", theaterName, screenID, showID, showtime);
-//            }
+//        ResultSet rs = ps.executeQuery();
 //
-//            System.out.println("+-------------------------------------------------------+");
-//        } catch (SQLException e) {
-//            e.printStackTrace();
+//        // Displaying theater and showtimes information
+//        System.out.println("+-------------------------------------------------------+");
+//        System.out.println("| Theater Name   | Screen ID | Show ID | Showtime      |");
+//        System.out.println("+-------------------------------------------------------+");
+//
+//        // Process the results
+//        while (rs.next()) {
+//            String theaterName = rs.getString("Theater_Name");
+//            int screenID = rs.getInt("SCREENID");
+//            int showID = rs.getInt("Show_ID");
+//
+//            // Format SHOWTIME if it's a Timestamp or Date type column
+//            String showtime = rs.getTimestamp("Showtime") != null
+//                    ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(rs.getTimestamp("Showtime"))
+//                    : "N/A"; // Default to "N/A" if it's null
+//
+//            // Print the details for each showtime
+//            System.out.printf("| %-15s | %-9d | %-7d | %-15s |\n", theaterName, screenID, showID, showtime);
 //        }
+//
+//        System.out.println("+-------------------------------------------------------+");
+//    } catch (SQLException e) {
+//        e.printStackTrace();
 //    }
+//}
 public void showTheaterAndScreenDetails(int movieID) {
     String sql = """
                 SELECT 
@@ -198,7 +206,6 @@ public void showTheaterAndScreenDetails(int movieID) {
         // Set the movie ID parameter
         ps.setInt(1, movieID);
 
-        // Execute the query and get the results
         ResultSet rs = ps.executeQuery();
 
         // Displaying theater and showtimes information

@@ -76,7 +76,7 @@
 //    }
 //
 //
-////------------------------------------------------------------------------------------------------------------
+/// /------------------------------------------------------------------------------------------------------------
 //    public void availableSeatsInShowtime(int showtimeID) {
 //        String sql = "SELECT * FROM seats WHERE showtime_id = ? AND isBooked = false";
 //        ResultSet rs = db.getRecords(sql, showtimeID);
@@ -161,67 +161,68 @@ public class Seat {
         for (int seatNumber = 1; seatNumber <= numSeats; seatNumber++) {
             String sql = "INSERT INTO seats (screen_id, seat_number, isBooked, seat_status) VALUES (?, ?, ?, ?)";
             Object[] values = {SCREENID, seatNumber, false, "available"};
-            db.
-                    executeUpdate(sql, values);
+            db.executeUpdate(sql, values);
         }
-     //   System.out.println(numSeats + " seats added successfully to screen " + screenId);
+        //   System.out.println(numSeats + " seats added successfully to screen " + screenId);
     }
 
     // Method to show all seats in a screen
+    // Show available seats for the selected screen
     public void showSeatsInScreen(int screenId) {
-        String sql = "SELECT * FROM seats WHERE screen_id = ?";
-        ResultSet rs = db.getRecords(sql, screenId);
+        String sql = "SELECT seat_id, isBooked FROM seats WHERE screen_id = ? AND isBooked = false";
+        try (Connection conn = db.connectToDatabase(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, screenId);
+            ResultSet rs = ps.executeQuery();
 
-        System.out.println("Seats in Screen ID: " + screenId);
+            System.out.println("💺 Available Seats for this screen:");
+            System.out.println("+------------+-----------------+");
+            System.out.println("| Seat ID    | Status          |");
+            System.out.println("+------------+-----------------+");
 
-        try {
-            if (!rs.isBeforeFirst()) { // Check if there are any results
-                System.out.println("No seats found for this screen.");
-                return;
-            }
-
-            // Print table header
-            System.out.println("+--------------+--------------+---------+");
-            System.out.printf("| %-12s | %-12s | %-7s |\n", "Seat Number", "Booked", "Seat Status");
-            System.out.println("+--------------+--------------+---------+");
-
-            // Print table rows
             while (rs.next()) {
-                int seatNumber = rs.getInt("seat_number");
-                boolean isBooked = rs.getBoolean("isBooked");
-                String seatStatus = rs.getString("seat_status");
-
-                System.out.printf("| %-12d | %-12s | %-7s |\n", seatNumber, isBooked ? "Yes" : "No", seatStatus);
+                int seatID = rs.getInt("seat_id");
+                System.out.printf("| %-10d | %-15s |\n", seatID, "Available");
             }
+            System.out.println("+------------+-----------------+");
 
-            // Print table footer
-            System.out.println("+--------------+--------------+---------+");
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close(); // Close the ResultSet
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     // Method to check if a seat is available
-    public boolean isSeatAvailable(int seatID) {
-        String sql = "SELECT isBooked FROM seats WHERE seat_id = ?";
-        try (Connection conn = db.connectToDatabase();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+//    public boolean isSeatAvailable(int seatID) {
+//        String sql = "SELECT isBooked FROM seats WHERE seat_id = ?";
+//        try (Connection conn = db.connectToDatabase();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setInt(1, seatID);
+//            ResultSet rs = ps.executeQuery();
+//            if (rs.next()) {
+//                return !rs.getBoolean("isBooked"); // Return true if not booked
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("❌ Error checking seat availability: " + e.getMessage());
+//        }
+//        return false; // Default to unavailable if query fails
+//    }
+// Method to check if a seat is available by seat number
+    public boolean isSeatAvailable(int seatID, int screenId) {
+        String sql = "SELECT isBooked FROM seats WHERE seat_id = ? AND screen_id = ?";
+        try (Connection conn = db.connectToDatabase(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seatID);
+            ps.setInt(2, screenId);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
-                return !rs.getBoolean("isBooked"); // Return true if not booked
+                boolean isBooked = rs.getBoolean("isBooked");
+                return !isBooked;  // If the seat is not booked, return true (available)
             }
         } catch (SQLException e) {
-            System.out.println("❌ Error checking seat availability: " + e.getMessage());
+            e.printStackTrace();
         }
-        return false; // Default to unavailable if query fails
+        return false;  // Default: if no result, treat as unavailable
     }
+
 
     // Method to show available seats for a specific showtime
 //    public void availableSeatsInShowtime(int showtimeID) {

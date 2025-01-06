@@ -133,7 +133,7 @@ public class Admin extends User {
                 case 5:
                     // Add theater
                     System.out.println("Enter theater name: ");
-                    sc.nextLine(); // Consume leftover newline character
+                    sc.nextLine();
                     theater_name = sc.nextLine();
                     System.out.println("Enter theater address: ");
                     address = sc.nextLine();
@@ -167,10 +167,8 @@ public class Admin extends User {
 
                     // Add seats to the newly added screen
                     for (int seatNumber = 1; seatNumber <= totalSeats; seatNumber++) {
-                        // Insert seats without the level concept (no level, all seats are 'available' by default)
+
                         se.insertSeats(screenNumber, seatNumber);
-
-
                     }
 
 

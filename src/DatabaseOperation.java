@@ -3,7 +3,7 @@ package src;
 import java.sql.*;
 
 public class DatabaseOperation {
-    static final String DB_URL = "jdbc:mysql://localhost:3306/movi_booking?useSSL=false";
+    static final String DB_URL = "jdbc:mysql://localhost:3306/movie_booking";
     static final String USER = "root";
     static final String PASS = "password";
 
