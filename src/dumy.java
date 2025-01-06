@@ -499,4 +499,56 @@ public class dumy {
 //        } catch (SQLException e) {
 //            e.printStackTrace();
 //        }
+//DatabaseOperation db = new DatabaseOperation();
+//
+//public void insertShowtime(int MOVIID, int THEATERID, int SCREENID, Timestamp startDate, Timestamp endDate) {
+//    // SQL query to check if the showtime overlaps with any other movie
+//    String checkSql = "SELECT COUNT(*) FROM showtime WHERE THEATERID = ? AND SCREENID = ? " +
+//            "AND ((start_date BETWEEN ? AND ?) OR (end_date BETWEEN ? AND ?) OR " +
+//            "(? BETWEEN start_date AND end_date) OR (? BETWEEN start_date AND end_date))";
+//
+//    // SQL query to insert the new showtime
+//    String insertSql = "INSERT INTO showtime(MOVIID, THEATERID, SCREENID, start_date, end_date) VALUES(?, ?, ?, ?, ?)";
+//
+//    try (Connection conn = db.connectToDatabase();
+//         PreparedStatement checkPs = conn.prepareStatement(checkSql);
+//         PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
+//
+//        // Set parameters for the check query
+//        checkPs.setInt(1, THEATERID);
+//        checkPs.setInt(2, SCREENID);
+//        checkPs.setTimestamp(3, startDate);  // Check if the new start date overlaps
+//        checkPs.setTimestamp(4, endDate);    // Check if the new end date overlaps
+//        checkPs.setTimestamp(5, startDate);  // Check if the new start date falls within existing showtimes
+//        checkPs.setTimestamp(6, endDate);    // Check if the new end date falls within existing showtimes
+//        checkPs.setTimestamp(7, startDate);  // Check if the new showtime is within the range of any existing showtime
+//        checkPs.setTimestamp(8, endDate);    // Check if the new showtime is within the range of any existing showtime
+//
+//        // Execute the check query
+//        ResultSet rs = checkPs.executeQuery();
+//        rs.next(); // Move to the first row
+//        int count = rs.getInt(1); // Get the count of overlapping showtimes
+//
+//        if (count > 0) {
+//            // If there is an overlap, do not insert the new showtime
+//            System.out.println("Showtime overlaps with another movie in the same theater and screen.");
+//        } else {
+//            // If no overlap, insert the new showtime
+//            insertPs.setInt(1, MOVIID);
+//            insertPs.setInt(2, THEATERID);
+//            insertPs.setInt(3, SCREENID);
+//            insertPs.setTimestamp(4, startDate);
+//            insertPs.setTimestamp(5, endDate);
+//
+//            int rowsAffected = insertPs.executeUpdate();
+//
+//            if (rowsAffected > 0) {
+//                System.out.println("Showtime inserted successfully.");
+//            } else {
+//                System.out.println("Failed to insert showtime.");
+//            }
+//        }
+//    } catch (SQLException e) {
+//        System.out.println("Error: " + e.getMessage());
 //    }
+//}
